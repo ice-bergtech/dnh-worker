@@ -19,14 +19,14 @@ type Variables = JwtVariables
 const app = new Hono<{ Variables: Variables }>()
 
 app.use(
-  '/auth/*',
-  jwt({
-    secret: 'it-is-very-secret',
-  })
+	'/auth/*',
+	jwt({
+		secret: 'it-is-very-secret',
+	})
 )
 
 app.get('/auth/page', (c) => {
-  return c.text('You are authorized')
+	return c.text('You are authorized')
 })
 
 // Setup OpenAPI registry
