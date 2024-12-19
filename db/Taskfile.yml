@@ -1,0 +1,33 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+# https://developers.cloudflare.com/d1/best-practices/import-export-data/#convert-sqlite-database-files
+
+  dump-sqlite:
+    desc: "Dump an D1-compatible sql file from a sqlite database"
+    cmds:
+      - sqlite3 db_dump.sqlite3 .dump > db.sql
+
+  dump-clean:
+    desc: "Split db into tables and data components and prepare to apply to D1"
+    cmds:
+      - echo test
+      # remove `BEGIN TRANSACTION` and `COMMIT` from file
+      # Remove _cf_KV table creation
+      # split into table and data files (commit tables to git)
+
+  dump-upload:
+    desc: "Apply generated db sql files to d1 instance"
+    cmds:
+      - wrangler d1 execute dnh-db --remote --file=dnh_tables.sql
+      - wrangler d1 execute dnh-db --remote --file=dnh_data.sql
