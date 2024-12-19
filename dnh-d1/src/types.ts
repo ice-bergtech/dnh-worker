@@ -21,6 +21,8 @@ export const PassiveDNS = z.object({
 	bailiwick: Str() // Authoritative name server
 })
 
+export type PassiveDNS_t = z.infer<typeof PassiveDNS>
+
 export const Network = z.object({
 	cidr: Str(),
 	as: Str(),
@@ -33,6 +35,8 @@ export const Network = z.object({
 	time_registered: DateTime(),
 	time_updated: DateTime(),
 })
+
+export type Network_t = z.infer<typeof Network>
 
 
 export const ASN = z.object({
@@ -47,6 +51,8 @@ export const ASN = z.object({
 	networks: z.array(Network)
 })
 
+export type ASN_t = z.infer<typeof ASN>
+
 export const Domain = z.object({
 	name: Str(),
 	time_first: DateTime(),
@@ -55,9 +61,19 @@ export const Domain = z.object({
 	ports: z.array(Int())
 })
 
+export type Domain_t = z.infer<typeof Domain>
+
 export const IPAddress = z.object({
 	ip: Str(),
 	network: Network,
-	bgp: z.array(Network) 
+	asn: ASN 
 })
 
+export type IPAddress_t = z.infer<typeof IPAddress>
+
+export const APIError = z.object({
+	message: Str(),
+	code: Int()
+})
+
+export type APIError_t = z.infer<typeof APIError>
