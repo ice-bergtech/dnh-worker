@@ -39,15 +39,9 @@ export class RateFetch extends OpenAPIRoute {
 	};
 
 	async handle(c) {
-		// Get validated data
-		const data = await this.getValidatedData<typeof this.schema>();
-
-		// Retrieve the validated slug
-		const { ipAddress } = data.params;
-
 		// Implement your own object fetch here
 		try{
-			const {results: ipAddr} = await c.env.DB.prepare("SELECT * FROM ip WHERE ip = ?").bind(ipAddress).all();
+			const {results: ipAddr} = await c.GET('jwtPayload');
 			return Response.json({
 				data: ipAddr
 			});
