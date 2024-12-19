@@ -1,5 +1,7 @@
 -- References dnh-d1/src/types.ts definitions
 
+
+DROP TABLE IF EXISTS pdns;
 CREATE TABLE pdns (
     id SERIAL PRIMARY KEY,
     rrname VARCHAR(255) NOT NULL,
@@ -12,10 +14,11 @@ CREATE TABLE pdns (
 );
 CREATE INDEX IF NOT EXISTS idx_pdns_rrname ON pdns(rrname);
 
+DROP TABLE IF EXISTS network;
 CREATE TABLE network (
     id SERIAL PRIMARY KEY,
     cidr VARCHAR(255) NOT NULL,
-    as VARCHAR(32),
+    asn VARCHAR(32),
     time_first TIMESTAMP NOT NULL,
     time_last TIMESTAMP NOT NULL,
     city VARCHAR(255),
@@ -27,6 +30,7 @@ CREATE TABLE network (
 );
 CREATE INDEX IF NOT EXISTS idx_network_cidr ON network(cidr);
 
+DROP TABLE IF EXISTS asn;
 CREATE TABLE asn (
     id SERIAL PRIMARY KEY,
     asn VARCHAR(32) NOT NULL,
@@ -40,6 +44,7 @@ CREATE TABLE asn (
 );
 CREATE INDEX IF NOT EXISTS idx_asn_asn ON asn(asn);
 
+DROP TABLE IF EXISTS domain;
 CREATE TABLE domain (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -48,12 +53,13 @@ CREATE TABLE domain (
 );
 CREATE INDEX IF NOT EXISTS idx_domain_name ON domain(name);
 
+DROP TABLE IF EXISTS ipaddress;
 CREATE TABLE ipaddress (
     id SERIAL PRIMARY KEY,
     ip VARCHAR(255) NOT NULL,
-    network: VARCHAR(255),
-    asn: VARCHAR(32),
+    network VARCHAR(255),
+    asn VARCHAR(32),
     FOREIGN KEY(network) REFERENCES network(cidr),
     FOREIGN KEY(asn) REFERENCES asn(asn)
-)
+);
 CREATE INDEX IF NOT EXISTS idx_ipaddress_ip ON ipaddress(ip);

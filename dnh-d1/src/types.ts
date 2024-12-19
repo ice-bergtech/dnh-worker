@@ -25,7 +25,7 @@ export type PassiveDNS_t = z.infer<typeof PassiveDNS>
 
 export const Network = z.object({
 	cidr: Str(),
-	as: Str(),
+	asn: Str(),
 	time_first: DateTime(),
 	time_last: DateTime(),
 	city: Str(),

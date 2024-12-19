@@ -11,6 +11,11 @@ tasks:
       - echo "{{.GREETING}}"
     silent: true
 
+  blank:
+    desc: "Generate blank database to fill"
+    cmds:
+      - sqlite3 dnh_blank.sqlite3 < dnh_tables.sql
+
 # https://developers.cloudflare.com/d1/best-practices/import-export-data/#convert-sqlite-database-files
 
   dump-sqlite:
