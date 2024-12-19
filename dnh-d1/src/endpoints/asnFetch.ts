@@ -1,25 +1,25 @@
 import { Bool, OpenAPIRoute, Str } from "chanfana";
 import { z } from "zod";
-import { APIError, IPAddress, APIError_t, Task } from "../types";
+import { APIError, IPAddress, APIError_t, Task, ASN } from "../types";
 
 export class ASNFetch extends OpenAPIRoute {
 	schema = {
-		tags: ["ip", "network"],
-		summary: "Get information about an ip address",
+		tags: ["network"],
+		summary: "Get information about an ASN address",
 		request: {
 			params: z.object({
-				ipAddress: Str({ description: "IP address" }),
+				asnNumber: Str({ description: "AS Number" }),
 			}),
 		},
 		responses: {
 			"200": {
-				description: "Returns a single IP address if found",
+				description: "Returns information about an ASN",
 				content: {
 					"application/json": {
 						schema: z.object({
 							series: z.object({
 								success: z.boolean(),
-								data: IPAddress,
+								data: ASN,
 								meta: z.object({}),
 							}),
 						}),
@@ -47,21 +47,20 @@ export class ASNFetch extends OpenAPIRoute {
 		const data = await this.getValidatedData<typeof this.schema>();
 
 		// Retrieve the validated slug
-		const { ipAddress } = data.params;
+		const { asnNumber } = data.params;
 
 		// Implement your own object fetch here
 		try{
-			const {results: ipAddr} = await c.env.DB.prepare("SELECT * FROM ip WHERE ip = ?").bind(ipAddress).all();
+			const {results: asInfo} = await c.env.DB.prepare("SELECT * FROM asn WHERE asn = ?").bind(asnNumber).all();
 			return Response.json({
-				data: ipAddr
+				data: asInfo
 			});
-
 		} catch (error) {
 		// @ts-ignore: check if the object exists
 			return Response.json({
 				success: false,
 				errors: [{
-					message: "IP address not found",
+					message: "ASN info not found",
 					code: 404,
 				}],
 			});

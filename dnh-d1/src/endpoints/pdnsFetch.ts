@@ -1,25 +1,28 @@
 import { Bool, OpenAPIRoute, Str } from "chanfana";
 import { z } from "zod";
-import { APIError, IPAddress, APIError_t, Task } from "../types";
+import { APIError, IPAddress, APIError_t, Task, PassiveDNS } from "../types";
 
 export class PDNSFetch extends OpenAPIRoute {
 	schema = {
 		tags: ["ip", "network"],
-		summary: "Get information about an ip address",
+		summary: "Get passive DNS records for an domain name",
 		request: {
 			params: z.object({
-				ipAddress: Str({ description: "IP address" }),
+				domainName: Str({ description: "Domain Name" }),
 			}),
+			headers: z.object({
+				Authorization: Str()
+			})
 		},
 		responses: {
 			"200": {
-				description: "Returns a single IP address if found",
+				description: "Returns list of passive DNS entries",
 				content: {
 					"application/json": {
 						schema: z.object({
 							series: z.object({
 								success: z.boolean(),
-								data: IPAddress,
+								data: z.array(PassiveDNS),
 								meta: z.object({}),
 							}),
 						}),
@@ -27,7 +30,7 @@ export class PDNSFetch extends OpenAPIRoute {
 				},
 			},
 			"404": {
-				description: "Resource not found",
+				description: "Records for domain not found",
 				content: {
 					"application/json": {
 						schema: z.object({
@@ -47,13 +50,13 @@ export class PDNSFetch extends OpenAPIRoute {
 		const data = await this.getValidatedData<typeof this.schema>();
 
 		// Retrieve the validated slug
-		const { ipAddress } = data.params;
+		const { domainName } = data.params;
 
 		// Implement your own object fetch here
 		try{
-			const {results: ipAddr} = await c.env.DB.prepare("SELECT * FROM ip WHERE ip = ?").bind(ipAddress).all();
+			const {results: pdnsRecords} = await c.env.DB.prepare("SELECT * FROM pdns WHERE rrname = ?").bind(domainName).all();
 			return Response.json({
-				data: ipAddr
+				data: pdnsRecords
 			});
 
 		} catch (error) {
@@ -61,7 +64,7 @@ export class PDNSFetch extends OpenAPIRoute {
 			return Response.json({
 				success: false,
 				errors: [{
-					message: "IP address not found",
+					message: "Records for domain not found",
 					code: 404,
 				}],
 			});
@@ -72,7 +75,7 @@ export class PDNSFetch extends OpenAPIRoute {
 export class PDNSFetchReverse extends OpenAPIRoute {
 	schema = {
 		tags: ["ip", "network"],
-		summary: "Get information about an ip address",
+		summary: "Get passive Reverse DNS records for an IP address",
 		request: {
 			params: z.object({
 				ipAddress: Str({ description: "IP address" }),
@@ -80,13 +83,13 @@ export class PDNSFetchReverse extends OpenAPIRoute {
 		},
 		responses: {
 			"200": {
-				description: "Returns a single IP address if found",
+				description: "Returns a list of passive DNS records for an IP address",
 				content: {
 					"application/json": {
 						schema: z.object({
 							series: z.object({
 								success: z.boolean(),
-								data: IPAddress,
+								data: z.array(PassiveDNS),
 								meta: z.object({}),
 							}),
 						}),
@@ -94,7 +97,7 @@ export class PDNSFetchReverse extends OpenAPIRoute {
 				},
 			},
 			"404": {
-				description: "Resource not found",
+				description: "Records for address not found",
 				content: {
 					"application/json": {
 						schema: z.object({
@@ -118,9 +121,9 @@ export class PDNSFetchReverse extends OpenAPIRoute {
 
 		// Implement your own object fetch here
 		try{
-			const {results: ipAddr} = await c.env.DB.prepare("SELECT * FROM ip WHERE ip = ?").bind(ipAddress).all();
+			const {results: pdnsRecords} = await c.env.DB.prepare("SELECT * FROM pdns WHERE rrname = ?").bind(ipAddress).all();
 			return Response.json({
-				data: ipAddr
+				data: pdnsRecords
 			});
 
 		} catch (error) {
@@ -128,7 +131,7 @@ export class PDNSFetchReverse extends OpenAPIRoute {
 			return Response.json({
 				success: false,
 				errors: [{
-					message: "IP address not found",
+					message: "Records for address not found",
 					code: 404,
 				}],
 			});
